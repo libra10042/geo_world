@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>VWorld WFS Test</title>
+
+  <!-- OpenLayers -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.5.2/ol.css">
+  <script src="https://cdn.jsdelivr.net/npm/ol@7.5.2/dist/ol.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <script>
+  const key = "45B4918F-C826-3778-BD8E-49B7D68E830B"; // 🔑 본인 키
+/* 
+
+  /* =========================
+     1️⃣ VWorld 기본 지도 (XYZ)
+     ========================= */
+  const baseLayer = new ol.layer.Tile({
+    source: new ol.source.XYZ({
+      url:
+        "https://api.vworld.kr/req/wmts/1.0.0/" +
+        key +
+        "/Base/{z}/{y}/{x}.png",
+      crossOrigin: "anonymous",
+      attributions: "© VWorld"
+    })
+  });
+
+  /* =========================
+     2️⃣ VWorld WFS Vector Source
+     ========================= */
+  const vectorSource = new ol.source.Vector({
+    format: new ol.format.GML3(),
+    loader: function (extent, resolution, projection) {
+
+      const url = "https://api.vworld.kr/req/wfs?" +
+        "key=" + key +
+        "&service=WFS" +
+        "&version=1.1.0" +
+        "&request=GetFeature" +
+        "&typename=LT_C_ADEMD_INFO" +   // 예: 행정동
+        "&srsName=EPSG:3857" +
+        "&bbox=" + extent.join(",") + ",EPSG:3857" +
+        "&output=gml3"
+        "&typename=lt_c_adsido";
+
+      console.log(url);
+      
+      
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', getUrl){
+    	  let formatGML = new ol.format.GML3();
+    	  let features = formatGML.readFeatures(xhr.responseText);
+    	  vectorSource.addFeature(features);
+    	  
+      }
+      xhr.send();
+      
+      
+      
+      fetch(url)
+        .then(res => res.text())
+        .then(text => {
+          const features = vectorSource.getFormat().readFeatures(text, {
+            dataProjection: "EPSG:3857",
+            featureProjection: "EPSG:3857"
+          });
+          vectorSource.addFeatures(features);
+        });
+    }
+  });
+
+  /* =========================
+     3️⃣ 스타일
+     ========================= */
+  const vectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+    style: new ol.style.Style({
+      stroke: new ol.style.Stroke({
+        color: "#ff0000",
+        width: 2
+      }),
+      fill: new ol.style.Fill({
+        color: "rgba(255,0,0,0.2)"
+      })
+    })
+  });
+
+  /* =========================
+     4️⃣ Map 생성
+     ========================= */
+  const map = new ol.Map({
+    target: "map",
+    layers: [
+      baseLayer,
+      vectorLayer
+    ],
+    view: new ol.View({
+      projection: "EPSG:3857",
+      center: ol.proj.fromLonLat([127, 38]),
+      zoom: 9
+    })
+  });
+</script>
+  
+</head>
+
+<body>
+<div id="map"></div>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>OpenLayers WMTS Test</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
+<script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+
+<style>
+.map {
+    width: 100%;
+    height: 400px;
+}
+</style>
+</head>
+
+<body>
+
+WMTS Test
+<div id="map" class="map"></div>
+
+<script>
+// EPSG:4326 설정
+const projection = ol.proj.get('EPSG:4326');
+const projectionExtent = projection.getExtent();
+
+// WMTS TileGrid 생성
+const tileGrid = new ol.tilegrid.WMTS({
+  origin: ol.extent.getTopLeft(projectionExtent),
+  resolutions: [
+    0.703125,
+    0.3515625,
+    0.17578125,
+    0.087890625,
+    0.0439453125,
+    0.02197265625
+  ],
+  matrixIds: [
+    'EPSG:4326:0',
+    'EPSG:4326:1',
+    'EPSG:4326:2',
+    'EPSG:4326:3',
+    'EPSG:4326:4',
+    'EPSG:4326:5'
+  ]
+});
+
+const layers = [
+  new ol.layer.Tile({
+    source: new ol.source.OSM(),
+  }),
+  new ol.layer.Tile({
+    source: new ol.source.WMTS({
+      url: 'https://ahovevar.com/geoserver/gwc/service/wmts',
+      layer: 'topp:states',
+      matrixSet: 'EPSG:4326',
+      format: 'image/png',
+      projection: projection,
+      tileGrid: tileGrid,
+      style: '',
+      wrapX: true
+    })
+  })
+];
+
+const map = new ol.Map({
+  target: 'map',
+  layers: layers,
+  view: new ol.View({
+    center: [127, 39],
+    zoom: 5,
+    projection: 'EPSG:4326'
+  })
+});
+</script>
+
+</body>
+</html>

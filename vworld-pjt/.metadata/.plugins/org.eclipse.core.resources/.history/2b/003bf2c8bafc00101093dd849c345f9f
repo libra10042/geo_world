@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+	<script type="text/javascript" src="/openlayers/dist/ol.js"></script>
+	<link rel="stylesheet" href="/openlayers/ol.css">
+		<style>
+			.map {
+				width : 100%', height : 400px;
+			}
+		</style>
+	</link>
+</head>
+
+<body>
+
+wms-tiled1111
+<div id="map" class="map"></div>
+</body>
+</html>
+
+<script>
+
+</script>

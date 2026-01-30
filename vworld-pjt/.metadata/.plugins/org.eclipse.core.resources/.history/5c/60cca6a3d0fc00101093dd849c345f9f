@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>WFS</title>
+    <link rel="stylesheet" href="node_modules/ol/ol.css">
+    <style>
+      .map {
+        width: 100%;
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
+<script>
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
+import GeoJSON from 'ol/format/GeoJSON.js';
+import TileLayer from 'ol/layer/Tile.js';
+import VectorLayer from 'ol/layer/Vector.js';
+import {bbox as bboxStrategy} from 'ol/loadingstrategy.js';
+import ImageTile from 'ol/source/ImageTile.js';
+import VectorSource from 'ol/source/Vector.js';
+
+const vectorSource = new VectorSource({
+  format: new GeoJSON(),
+  url: function (extent) {
+    return (
+      'https://ahocevar.com/geoserver/wfs?service=WFS&' +
+      'version=1.1.0&request=GetFeature&typename=osm:water_areas&' +
+      'outputFormat=application/json&srsname=EPSG:3857&' +
+      'bbox=' +
+      extent.join(',') +
+      ',EPSG:3857'
+    );
+  },
+  strategy: bboxStrategy,
+});
+
+const vector = new VectorLayer({
+  source: vectorSource,
+  style: {
+    'stroke-width': 0.75,
+    'stroke-color': 'white',
+    'fill-color': 'rgba(100,100,100,0.25)',
+  },
+});
+
+const key = 'Get your own API key at https://www.maptiler.com/cloud/';
+const attributions =
+  '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
+  '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
+
+const raster = new TileLayer({
+  source: new ImageTile({
+    attributions: attributions,
+    url: 'https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=' + key,
+    tileSize: 512,
+    maxZoom: 20,
+  }),
+});
+
+const map = new Map({
+  layers: [raster, vector],
+  target: document.getElementById('map'),
+  view: new View({
+    center: [-8908887.277395891, 5381918.072437216],
+    maxZoom: 19,
+    zoom: 12,
+  }),
+});
+
+</script>
